@@ -1,0 +1,468 @@
+/* SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause) */
+
+/dts-v1/;
+
+#include "stm32mp153.dtsi"
+#include "stm32mp15xc.dtsi"
+#include "stm32mp15-pinctrl.dtsi"
+#include "stm32mp15xxac-pinctrl.dtsi"
+#include <dt-bindings/soc/stm32mp15-etzpc.h>
+#include <dt-bindings/clock/stm32mp1-clksrc.h>
+#include <dt-bindings/power/stm32mp1-power.h>
+
+/ {
+	model = "Custom";
+	compatible = "st,stm32mp153c-custom", "st,stm32mp153";
+
+	aliases {
+		serial0 = &usart1;
+	};
+
+	chosen {
+		stdout-path = "serial0:115200n8";
+	};
+
+	memory@c0000000 {
+		device_type = "memory";
+		reg = <0xc0000000 0x20000000>;
+	};
+
+	clocks {
+		clk_lse: clk-lse {
+			clock-frequency = <32768>;
+			st,drive = < LSEDRV_MEDIUM_HIGH >;
+			st,css;
+		};
+
+		clk_hse: clk-hse {
+			compatible = "fixed-clock";
+			clock-frequency = <24000000>;
+		};
+	};
+
+	vin: vin {
+		compatible = "regulator-fixed";
+		regulator-name = "vin";
+		regulator-min-microvolt = <3800000>;
+		regulator-max-microvolt = <3800000>;
+		regulator-always-on;
+	};
+
+};
+
+&pinctrl {
+	i2c4_pins_mx: i2c4_mx-0 {
+		pins {
+			pinmux = <STM32_PINMUX('B', 8, AF6)>, /* I2C4_SCL */
+					 <STM32_PINMUX('B', 9, AF6)>; /* I2C4_SDA */
+			bias-disable;
+			drive-open-drain;
+			slew-rate = <0>;
+		};
+	};
+
+	rcc_pins_mx: rcc_mx-0 {
+		pins {
+		     pinmux = <STM32_PINMUX('A', 13, AF2)>; /* RCC_MCO_1 */
+		     bias-disable;
+		     drive-push-pull;
+		     slew-rate = <0>;
+		};
+	};
+
+	sdmmc1_pins_mx: sdmmc1_mx-0 {
+		pins1 {
+			pinmux = <STM32_PINMUX('C', 8, AF12)>, /* SDMMC1_D0 */
+					 <STM32_PINMUX('C', 9, AF12)>, /* SDMMC1_D1 */
+					 <STM32_PINMUX('C', 10, AF12)>, /* SDMMC1_D2 */
+					 <STM32_PINMUX('C', 11, AF12)>, /* SDMMC1_D3 */
+					 <STM32_PINMUX('D', 2, AF12)>; /* SDMMC1_CMD */
+			bias-disable;
+			drive-push-pull;
+			slew-rate = <1>;
+		};
+		pins2 {
+			pinmux = <STM32_PINMUX('C', 12, AF12)>; /* SDMMC1_CK */
+			bias-disable;
+			drive-push-pull;
+			slew-rate = <3>;
+		};
+	};
+
+	sdmmc2_pins_mx: sdmmc2_mx-0 {
+	pins1 {
+			pinmux = <STM32_PINMUX('A', 8, AF9)>, /* SDMMC2_D4 */
+					 <STM32_PINMUX('A', 15, AF9)>, /* SDMMC2_D5 */
+					 <STM32_PINMUX('B', 3, AF9)>, /* SDMMC2_D2 */
+					 <STM32_PINMUX('B', 4, AF9)>, /* SDMMC2_D3 */
+					 <STM32_PINMUX('B', 15, AF9)>, /* SDMMC2_D1 */
+					 <STM32_PINMUX('C', 7, AF10)>, /* SDMMC2_D7 */
+					 <STM32_PINMUX('E', 5, AF9)>, /* SDMMC2_D6 */
+					 <STM32_PINMUX('E', 6, AF7)>, /* SDMMC2_D0 */
+					 <STM32_PINMUX('G', 6, AF10)>; /* SDMMC2_CMD */
+			bias-disable;
+			drive-push-pull;
+			slew-rate = <1>;
+		};
+		pins2 {
+			pinmux = <STM32_PINMUX('E', 3, AF9)>; /* SDMMC2_CK */
+			bias-disable;
+			drive-push-pull;
+			slew-rate = <3>;
+		};
+	};
+
+	usart1_pins_mx: usart1_mx-0 {
+		pins1 {
+			pinmux = <STM32_PINMUX('B', 2, AF4)>; /* USART1_RX */
+			bias-disable;
+		};
+		pins2 {
+			pinmux = <STM32_PINMUX('G', 11, AF4)>; /* USART1_TX */
+			bias-disable;
+			drive-push-pull;
+			slew-rate = <0>;
+		};
+	};
+
+	usb_otg_hs_pins_mx: usb_otg_hs_mx-0 {
+		pins {
+			pinmux = <STM32_PINMUX('A', 10, ANALOG)>; /* USB_OTG_HS_ID */
+		};
+	};
+};
+
+&pinctrl_z {
+};
+
+&bsec{
+	status = "okay";
+	secure-status = "okay";
+
+	plc_mac_address: mac_plc@ec {
+		reg = <0xec 0x8>;
+		st,non-secure-otp;
+	};
+
+	esys_hw_id: esys_hw_id@f4 {
+		reg = <0xf4 0x4>;
+		st,non-secure-otp;
+	};
+
+	secure_huk: secure_huk@170 {
+		/* BSEC_OTP_DATA92 to BSEC_OTP_DATA95 */
+		reg = <0x170 0x10>;
+		st,non-secure-otp-provisioning;
+	};
+};
+
+&cpu0{
+	cpu-supply = <&vddcore>;
+};
+
+&cpu1{
+	cpu-supply = <&vddcore>;
+};
+
+&cryp1 {
+	status = "okay";
+};
+
+&etzpc{
+	secure-status = "okay";
+	st,decprot = <
+	/*"Non Secured" peripherals*/
+	DECPROT(STM32MP1_ETZPC_ADC_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_CRYP1_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_DMA1_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_DMA2_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_DMAMUX_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_ETH_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_I2C4_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_SDMMC3_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_DLYBSD3_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_UART7_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_UART8_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_USART1_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_USART3_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_OTG_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_MDIOS_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_TT_FDCAN_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_HASH1_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	DECPROT(STM32MP1_ETZPC_SPI4_ID, DECPROT_NS_RW, DECPROT_UNLOCK)
+	/*"NS_R S_W" peripherals*/
+	DECPROT(STM32MP1_ETZPC_DDRCTRL_ID, DECPROT_NS_R_S_W, DECPROT_LOCK)
+	DECPROT(STM32MP1_ETZPC_DDRPHYC_ID, DECPROT_NS_R_S_W, DECPROT_LOCK)
+	DECPROT(STM32MP1_ETZPC_SRAM1_ID, DECPROT_NS_R_S_W, DECPROT_LOCK)
+	/*"Secured" peripherals*/
+	DECPROT(STM32MP1_ETZPC_STGENC_ID, DECPROT_S_RW, DECPROT_LOCK)
+	DECPROT(STM32MP1_ETZPC_BKPSRAM_ID, DECPROT_S_RW, DECPROT_LOCK)
+	DECPROT(STM32MP1_ETZPC_IWDG1_ID, DECPROT_S_RW, DECPROT_LOCK)
+	DECPROT(STM32MP1_ETZPC_RNG1_ID, DECPROT_S_RW, DECPROT_UNLOCK)
+	/* FIXME, unlocked ok? "Mcu Isolation" peripherals*/
+	DECPROT(STM32MP1_ETZPC_I2C1_ID, DECPROT_MCU_ISOLATION, DECPROT_UNLOCK)
+	>;
+};
+
+&hash1 {
+	status = "okay";
+};
+
+&i2c4{
+	compatible = "st,stm32mp15-i2c-non-secure";
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c4_pins_mx>;
+	i2c-scl-rising-time-ns = <185>;
+	i2c-scl-falling-time-ns = <20>;
+	clock-frequency = <400000>;
+	status = "okay";
+	secure-status = "okay";
+
+	pmic: stpmic@33 {
+		compatible = "st,stpmic1";
+		reg = <0x33>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+		status = "okay";
+		secure-status = "okay";
+
+		regulators {
+			compatible = "st,stpmic1-regulators";
+			buck1-supply = <&vin>;
+			buck2-supply = <&vin>;
+			buck3-supply = <&vin>;
+			buck4-supply = <&vin>;
+			boost-supply = <&vin>;
+			pwr_sw1-supply = <&bst_out>;
+			pwr_sw2-supply = <&bst_out>;
+			ldo3-supply = <&vdd_ddr>;
+			ldo1-supply = <&vin>;
+			ldo6-supply = <&vin>;
+			ldo2-supply = <&vin>;
+			ldo5-supply = <&vin>;
+			ldo4-supply = <&vin>;
+
+			vddcore: buck1 {
+				regulator-name = "vddcore";
+				regulator-min-microvolt = <1200000>;
+				regulator-max-microvolt = <1200000>;
+				regulator-always-on;
+				regulator-boot-on;
+				regulator-over-current-protection;
+			};
+
+			vdd_ddr: buck2 {
+				regulator-name = "vdd_ddr";
+				regulator-min-microvolt = <1350000>;
+				regulator-max-microvolt = <1350000>;
+				regulator-always-on;
+				regulator-over-current-protection;
+			};
+
+			vdd: buck3 {
+				regulator-name = "vdd";
+				regulator-min-microvolt = <3300000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-always-on;
+				st,mask-reset;
+				regulator-over-current-protection;
+			};
+
+			v3v3_bridgedToBuck3: buck4 {
+				regulator-name = "v3v3_bridgedToBuck3";
+				regulator-min-microvolt = <3300000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-always-on;
+				regulator-over-current-protection;
+			};
+
+			vtt_ddr: ldo3 {
+				regulator-name = "vtt_ddr";
+				regulator-always-on;
+				regulator-over-current-protection;
+				st,regulator-sink-source;
+			};
+
+			v1v8: ldo1 {
+				regulator-name = "v1v8";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+			};
+
+			v1v2: ldo6 {
+				regulator-name = "v1v2";
+				regulator-min-microvolt = <1200000>;
+				regulator-max-microvolt = <1200000>;
+			};
+
+			v3v3: ldo2 {
+				regulator-name = "v3v3";
+				regulator-min-microvolt = <3300000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-always-on;
+				regulator-boot-on;
+			};
+
+			vdda: ldo5 {
+				regulator-name = "vdda";
+				regulator-min-microvolt = <3300000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-always-on;
+				regulator-boot-on;
+			};
+
+			vdd_usb: ldo4 {
+				regulator-name = "vdd_usb";
+				regulator-min-microvolt = <3300000>;
+				regulator-max-microvolt = <3300000>;
+			};
+
+			vref_ddr: vref_ddr {
+				regulator-name = "vref_ddr";
+				regulator-always-on;
+			};
+
+			bst_out: boost {
+				regulator-name = "bst_out";
+			};
+
+			vbus_otg: pwr_sw1 {
+				regulator-name = "vbus_otg";
+			};
+
+			vbus_sw: pwr_sw2 {
+				regulator-name = "vbus_sw";
+				regulator-active-discharge = <1>;
+			};
+		};
+	};
+};
+
+&pwr_regulators {
+      system_suspend_supported_soc_modes = <
+		STM32_PM_CSLEEP_RUN
+		STM32_PM_CSTOP_ALLOW_STOP
+		STM32_PM_CSTOP_ALLOW_LP_STOP
+		STM32_PM_CSTOP_ALLOW_LPLV_STOP
+		STM32_PM_CSTOP_ALLOW_STANDBY_DDR_SR
+       >;
+
+	/* system_off_soc_mode = <STM32_PM_CSTOP_ALLOW_STANDBY_DDR_OFF>; */
+	system_off_soc_mode = <STM32_PM_SHUTDOWN>;
+	vdd-supply = <&vdd>;
+	vdd_3v3_usbfs-supply = <&vdd_usb>;
+};
+
+&iwdg2{
+	timeout-sec = <32>;
+	secure-timeout-sec = <5>;
+};
+
+&rcc{
+	pinctrl-names = "default";
+	pinctrl-0 = <&rcc_pins_mx>;
+	status = "okay";
+	secure-status = "okay";
+	st,csi-cal;
+	st,hsi-cal;
+	st,cal-sec = <60>;
+	st,clksrc = <
+		CLK_MPU_PLL1P
+		CLK_AXI_PLL2P
+		CLK_MCU_PLL3P
+		CLK_PLL12_HSI
+		CLK_PLL3_HSE
+		CLK_PLL4_HSE
+		CLK_RTC_LSE
+		CLK_MCO1_LSE
+		CLK_MCO2_DISABLED
+	>;
+	st,clkdiv = <
+		1		/*MPU*/
+		0		/*AXI*/
+		0		/*MCU*/
+		1		/*APB1*/
+		1		/*APB2*/
+		1		/*APB3*/
+		1		/*APB4*/
+		2		/*APB5*/
+		0		/*RTC*/
+		0		/*MCO1*/
+		0		/*MCO2*/
+	>;
+	st,pkcs = <
+		CLK_CKPER_HSI
+		CLK_ETH_PLL4P
+		CLK_SDMMC12_PLL4P
+		CLK_STGEN_HSI
+		CLK_USBPHY_HSE
+		CLK_SPI2S1_DISABLED
+		CLK_SPI2S23_DISABLED
+		CLK_SPI45_PCLK2
+		CLK_SPI6_DISABLED
+		CLK_I2C46_HSI
+		CLK_SDMMC3_PLL4P
+		CLK_USBO_USBPHY
+		CLK_ADC_CKPER
+		CLK_CEC_DISABLED
+		CLK_I2C12_HSI
+		CLK_I2C35_DISABLED
+		CLK_UART1_HSE
+		CLK_UART24_DISABLED
+		CLK_UART35_HSE
+		CLK_UART6_DISABLED
+		CLK_UART78_HSE
+		CLK_SPDIF_DISABLED
+		CLK_FDCAN_HSE
+		CLK_SAI1_DISABLED
+		CLK_SAI2_DISABLED
+		CLK_SAI3_DISABLED
+		CLK_SAI4_DISABLED
+		CLK_LPTIM1_DISABLED
+		CLK_LPTIM23_DISABLED
+		CLK_LPTIM45_DISABLED
+	>;
+	pll2:st,pll@1 {
+		compatible = "st,stm32mp1-pll";
+		reg = <1>;
+		cfg = < 3 24 1 1 0 PQR(1,0,1) >;
+	};
+	pll3:st,pll@2 {
+		compatible = "st,stm32mp1-pll";
+		reg = <2>;
+		cfg = < 3 65 1 16 36 PQR(1,0,0) >;
+		frac = < 0x1a04 >;
+	};
+	pll4:st,pll@3 {
+		compatible = "st,stm32mp1-pll";
+		reg = <3>;
+		cfg = < 1 39 3 7 24 PQR(1,0,0) >;
+	};
+};
+
+&rng1 {
+	status = "okay";
+	secure-status = "okay";
+};
+
+&rtc{
+	status = "okay";
+	secure-status = "okay";
+};
+
+&tamp{
+	status = "okay";
+	secure-status = "okay";
+};
+
+&timers15 {
+	secure-status = "okay";
+	st,hsi-cal-input = <7>;
+	st,csi-cal-input = <8>;
+};
+
+&usart1{
+	pinctrl-names = "default";
+	pinctrl-0 = <&usart1_pins_mx>;
+	status = "okay";
+};

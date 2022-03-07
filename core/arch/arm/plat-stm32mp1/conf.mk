@@ -13,13 +13,15 @@ flavor_dts_file-157F_ED1 = stm32mp157f-ed1.dts
 flavor_dts_file-157F_EV1 = stm32mp157f-ev1.dts
 flavor_dts_file-135D_DK = stm32mp135d-dk.dts
 flavor_dts_file-135F_DK = stm32mp135f-dk.dts
+flavor_dts_file-153C_ESYS_MX = stm32mp153c-esys-mx.dts
 
 flavorlist-512M = $(flavor_dts_file-157A_DK1) \
 		  $(flavor_dts_file-157C_DK2) \
 		  $(flavor_dts_file-157D_DK1) \
 		  $(flavor_dts_file-157F_DK2) \
 		  $(flavor_dts_file-135D_DK) \
-		  $(flavor_dts_file-135F_DK)
+		  $(flavor_dts_file-135F_DK) \
+		  $(flavor_dts_file-153C_ESYS_MX)
 
 flavorlist-1G = $(flavor_dts_file-157A_ED1) \
 		$(flavor_dts_file-157A_EV1) \
@@ -41,7 +43,8 @@ flavorlist-MP15 = $(flavor_dts_file-157A_DK1) \
 		  $(flavor_dts_file-157C_ED1) \
 		  $(flavor_dts_file-157C_EV1) \
 		  $(flavor_dts_file-157F_ED1) \
-		  $(flavor_dts_file-157F_EV1)
+		  $(flavor_dts_file-157F_EV1) \
+		  $(flavor_dts_file-153C_ESYS_MX)
 
 flavorlist-MP13 = $(flavor_dts_file-135D_DK) \
                   $(flavor_dts_file-135F_DK)
@@ -139,7 +142,7 @@ endif
 
 CFG_DRAM_BASE    ?= 0xc0000000
 CFG_TZSRAM_START ?= 0x2ffc0000
-CFG_TZSRAM_SIZE  ?= 0x0003f000
+CFG_TZSRAM_SIZE  ?= 0x00060000
 
 # CFG_STM32MP1_SCMI_SHM_BASE and CFG_STM32MP1_SCMI_SHM_SIZE define the
 # device memory mapped SRAM used for SCMI message transfers.
@@ -151,7 +154,7 @@ CFG_TZSRAM_SIZE  ?= 0x0003f000
 # disabled.
 CFG_STM32MP1_SCMI_SHM_SYSRAM ?= n
 ifeq ($(CFG_STM32MP1_SCMI_SHM_SYSRAM),y)
-$(call force,CFG_STM32MP1_SCMI_SHM_BASE,0x2ffff000)
+$(call force,CFG_STM32MP1_SCMI_SHM_BASE,0x10047000)
 else
 CFG_STM32MP1_SCMI_SHM_BASE ?= 0
 endif
@@ -342,7 +345,7 @@ CFG_CORE_ASLR ?= n
 # Non-secure UART for the output console
 CFG_WITH_NSEC_UARTS ?= y
 # UART instance used for early console (0 disables early console)
-CFG_STM32_EARLY_CONSOLE_UART ?= 4
+CFG_STM32_EARLY_CONSOLE_UART ?= 1
 
 # Generate the STM32 files
 CFG_STM32MP15x_STM32IMAGE ?= n
