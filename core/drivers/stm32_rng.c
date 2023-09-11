@@ -103,13 +103,17 @@ TEE_Result stm32_rng_read_raw(vaddr_t rng_base, uint8_t *out, size_t *size)
 
 		/* RNG is ready: read up to 4 32bit words */
 		while (len) {
-			uint32_t data32 = io_read32(rng_base + RNG_DR);
+			uint32_t data32 = 0;
 			size_t sz = MIN(len, sizeof(uint32_t));
 
 			/*
 			 * Late seed error case: DR being 0 is an error
 			 * status.
 			 */
+			if (!(io_read32(rng_base + RNG_SR) & RNG_SR_DRDY))
+				break;
+			data32 = io_read32(rng_base + RNG_DR);
+
 			if (!data32) {
 				conceal_seed_error(rng_base);
 				return TEE_ERROR_NO_DATA;
