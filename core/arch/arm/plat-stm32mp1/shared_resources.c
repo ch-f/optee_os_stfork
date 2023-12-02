@@ -132,6 +132,10 @@ static const char __maybe_unused *shres2str_id_tbl[STM32MP1_SHRES_COUNT] = {
 	[STM32MP1_SHRES_PLL3] = "PLL3",
 #endif
 	[STM32MP1_SHRES_MDMA] = "MDMA",
+	[STM32MP1_SHRES_SRAM1] = "SRAM1",
+	[STM32MP1_SHRES_SRAM2] = "SRAM2",
+	[STM32MP1_SHRES_SRAM3] = "SRAM3",
+	[STM32MP1_SHRES_SRAM4] = "SRAM4",
 };
 
 static __maybe_unused const char *shres2str_id(enum stm32mp_shres id)
@@ -254,6 +258,18 @@ static void register_periph_iomem(vaddr_t base, enum shres_state state)
 		break;
 	case HASH1_BASE:
 		id = STM32MP1_SHRES_HASH1;
+		break;
+	case SRAM1_BASE:
+		id = STM32MP1_SHRES_SRAM1;
+		break;
+	case SRAM2_BASE:
+		id = STM32MP1_SHRES_SRAM2;
+		break;
+	case SRAM3_BASE:
+		id = STM32MP1_SHRES_SRAM3;
+		break;
+	case SRAM4_BASE:
+		id = STM32MP1_SHRES_SRAM4;
 		break;
 
 #ifdef CFG_WITH_NSEC_UARTS
@@ -492,6 +508,13 @@ static void check_rcc_secure_configuration(void)
 
 	for (id = 0; id < STM32MP1_SHRES_COUNT; id++) {
 		if  (shres_state[id] != SHRES_SECURE)
+			continue;
+
+		/* SRAMs have no constraints on RCC configuration */
+		if (id == STM32MP1_SHRES_SRAM1 ||
+		    id == STM32MP1_SHRES_SRAM2 ||
+		    id == STM32MP1_SHRES_SRAM3 ||
+		    id == STM32MP1_SHRES_SRAM4)
 			continue;
 
 		need_secure = true;

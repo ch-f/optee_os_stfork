@@ -109,6 +109,10 @@
 #define RTC_BASE			0x5c004000
 #ifdef CFG_STM32MP15
 #define SPI6_BASE			0x5c001000
+#define SRAM1_BASE			0x30000000
+#define SRAM2_BASE			0x30020000
+#define SRAM3_BASE			0x30040000
+#define SRAM4_BASE			0x30050000
 #endif
 #define STGEN_BASE			0x5c008000
 #define SYSCFG_BASE			0x50020000
@@ -358,5 +362,12 @@
 #define PLAT_OPP_ID2			2U
 #define PLAT_MAX_OPP_NB			2U
 #define PLAT_MAX_PLLCFG_NB		6U
+
+#ifdef CFG_STM32MP15
+#define SRAM1_SIZE			0x20000
+#define SRAM2_SIZE			0x20000
+#define SRAM3_SIZE			0x10000
+#define SRAM4_SIZE			0x10000
+#endif
 
 #endif /*PLATFORM_CONFIG_H*/
