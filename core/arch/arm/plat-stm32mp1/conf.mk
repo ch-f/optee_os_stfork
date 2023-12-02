@@ -140,8 +140,14 @@ endif
 CFG_DRAM_BASE    ?= 0xc0000000
 CFG_TZSRAM_START ?= 0x2ffc0000
 CFG_TZSRAM_SIZE  ?= 0x0003f000
+
+# CFG_STM32MP1_SCMI_SHM_BASE and CFG_STM32MP1_SCMI_SHM_SIZE define the
+# device memory mapped SRAM used for SCMI message transfers.
+# When CFG_STM32MP1_SCMI_SHM_BASE is set to 0, the platform uses OP-TEE
+# native shared memory for SCMI communication instead of SRAM.
 CFG_STM32MP1_SCMI_SHM_BASE ?= 0x2ffff000
 CFG_STM32MP1_SCMI_SHM_SIZE ?= 0x00001000
+
 CFG_TZDRAM_SIZE  ?= 0x01e00000
 CFG_SHMEM_SIZE   ?= 0x00200000
 CFG_DRAM_SIZE    ?= 0x40000000
@@ -275,7 +281,7 @@ endif
 CFG_SCMI_PTA ?= y
 ifeq ($(CFG_SCMI_PTA),y)
 $(call force,CFG_SCMI_MSG_DRIVERS,y,Mandated by CFG_SCMI_PTA)
-$(call force,CFG_SCMI_MSG_SMT_THREAD_ENTRY,y,Mandated by CFG_SCMI_PTA)
+CFG_SCMI_MSG_SMT_THREAD_ENTRY ?= y
 CFG_CORE_OCALL ?= y
 endif
 
