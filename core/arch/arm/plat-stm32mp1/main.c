@@ -243,6 +243,18 @@ service_init_late(init_console_from_dt);
 					 (TZSRAM_END <= SRAMS_END) && \
 					 (SYSRAM_SIZE == SYSRAM_SEC_SIZE))
 
+#define TZSRAM_FITS_IN_SYSRAM_UPTO_SRAM1 ((CFG_TZSRAM_START >= SYSRAM_BASE) && \
+					 (CFG_TZSRAM_START < SYSRAM_END) && \
+					 (TZSRAM_END > SYSRAM_END) && \
+					 (TZSRAM_END <= SRAMS_END) && \
+					 (CFG_TZSRAM_SIZE == 0x00060000))
+
+#define TZSRAM_FITS_IN_SYSRAM_UPTO_SRAM3 ((CFG_TZSRAM_START >= SYSRAM_BASE) && \
+					 (CFG_TZSRAM_START < SYSRAM_END) && \
+					 (TZSRAM_END > SYSRAM_END) && \
+					 (TZSRAM_END <= SRAMS_END) && \
+					 (CFG_TZSRAM_SIZE == 0x00090000))
+
 #define TZSRAM_FITS_IN_SRAMS	((CFG_TZSRAM_START >= SRAMS_START) && \
 				 (CFG_TZSRAM_START < SRAMS_END) && \
 				 (TZSRAM_END <= SRAMS_END))
@@ -259,6 +271,8 @@ service_init_late(init_console_from_dt);
  */
 #if (TZSRAM_FITS_IN_SYSRAM_SEC || \
     TZSRAM_FITS_IN_SYSRAM_AND_SRAMS || \
+    TZSRAM_FITS_IN_SYSRAM_UPTO_SRAM1 || \
+    TZSRAM_FITS_IN_SYSRAM_UPTO_SRAM3 || \
     TZSRAM_FITS_IN_SRAMS || \
     TZSRAM_IS_IN_DRAM)
     #pragma message "TZSRAM constrains OK"
@@ -267,8 +281,9 @@ service_init_late(init_console_from_dt);
 #endif
 #endif
 
-#if TZSRAM_FITS_IN_SYSRAM_AND_SRAMS || TZSRAM_FITS_IN_SRAMS || \
-	SCMI_SHM_IS_IN_SRAMX
+#if TZSRAM_FITS_IN_SYSRAM_AND_SRAMS || TZSRAM_FITS_IN_SYSRAM_UPTO_SRAM1 || \
+	TZSRAM_FITS_IN_SYSRAM_UPTO_SRAM3 || \
+	TZSRAM_FITS_IN_SRAMS || SCMI_SHM_IS_IN_SRAMX
 /* At run time we enforce that SRAM1 to SRAM4 are properly assigned if used */
 static TEE_Result init_stm32mp15_secure_srams(void)
 {
@@ -276,7 +291,7 @@ static TEE_Result init_stm32mp15_secure_srams(void)
 		if (core_is_buffer_intersect(CFG_TZSRAM_START, CFG_TZSRAM_SIZE,
 					     SRAM1_BASE, SRAM1_SIZE))
 			stm32mp_register_secure_periph_iomem(SRAM1_BASE);
-
+#if !TZSRAM_FITS_IN_SYSRAM_UPTO_SRAM1
 		if (core_is_buffer_intersect(CFG_TZSRAM_START, CFG_TZSRAM_SIZE,
 					     SRAM2_BASE, SRAM2_SIZE))
 			stm32mp_register_secure_periph_iomem(SRAM2_BASE);
@@ -284,10 +299,12 @@ static TEE_Result init_stm32mp15_secure_srams(void)
 		if (core_is_buffer_intersect(CFG_TZSRAM_START, CFG_TZSRAM_SIZE,
 					     SRAM3_BASE, SRAM3_SIZE))
 			stm32mp_register_secure_periph_iomem(SRAM3_BASE);
-
+#if !TZSRAM_FITS_IN_SYSRAM_UPTO_SRAM3
 		if (core_is_buffer_intersect(CFG_TZSRAM_START, CFG_TZSRAM_SIZE,
 					     SRAM4_BASE, SRAM4_SIZE))
 			stm32mp_register_secure_periph_iomem(SRAM4_BASE);
+#endif
+#endif
 	}
 
 	if (SCMI_SHM_IS_IN_SRAMX) {
